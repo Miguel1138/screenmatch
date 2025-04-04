@@ -27,14 +27,15 @@ public class Principal {
         Series dataSeries = converter.convertData(json, Series.class);
         System.out.println(dataSeries);
 
-        // TODO tratar exceção de nome mal escrito.
         for (int i = 1; i <= dataSeries.totalSeasons(); i++) {
             json = api.obtainData(ADDRESS + name + "&season=" + i + API_KEY);
             Seasons dataSeason = converter.convertData(json, Seasons.class);
             seasons.add(dataSeason);
         }
 
-        seasons.forEach(System.out::println);
+        seasons.forEach(s ->
+                s.episodes().forEach(
+                        e -> System.out.println(e.title())));
     }
 
 }
