@@ -1,13 +1,17 @@
 package br.com.miguelsantos.screenmatch.principal;
 
+import br.com.miguelsantos.screenmatch.model.DataEpisode;
+import br.com.miguelsantos.screenmatch.model.Episode;
 import br.com.miguelsantos.screenmatch.model.Seasons;
 import br.com.miguelsantos.screenmatch.model.Series;
 import br.com.miguelsantos.screenmatch.service.ConsumeApi;
 import br.com.miguelsantos.screenmatch.service.ConvertData;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -33,9 +37,19 @@ public class Principal {
             seasons.add(dataSeason);
         }
 
-        seasons.forEach(s ->
-                s.episodes().forEach(
-                        e -> System.out.println(e.title())));
+        // Give the 5 top episodes
+        List<Episode> top_five_episodes = seasons.stream()
+                .flatMap(s ->
+                        s.episodes().stream()
+                                .map(data -> new Episode(s.number(), data))
+                ).collect(Collectors.toList());
+
+        System.out.println("Top 5 episodios:\n");
+        top_five_episodes.stream()
+                .sorted(Comparator.comparing(Episode::getRating).reversed())
+                .limit(5)
+                .forEach(System.out::println);
+
     }
 
 }
