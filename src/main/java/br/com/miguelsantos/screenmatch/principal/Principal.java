@@ -1,16 +1,14 @@
 package br.com.miguelsantos.screenmatch.principal;
 
-import br.com.miguelsantos.screenmatch.model.DataEpisode;
 import br.com.miguelsantos.screenmatch.model.Episode;
 import br.com.miguelsantos.screenmatch.model.Seasons;
 import br.com.miguelsantos.screenmatch.model.Series;
 import br.com.miguelsantos.screenmatch.service.ConsumeApi;
 import br.com.miguelsantos.screenmatch.service.ConvertData;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Principal {
@@ -38,18 +36,42 @@ public class Principal {
         }
 
         // Give the 5 top episodes
-        List<Episode> top_five_episodes = seasons.stream()
+        List<Episode> episodes = seasons.stream()
                 .flatMap(s ->
                         s.episodes().stream()
                                 .map(data -> new Episode(s.number(), data))
                 ).collect(Collectors.toList());
 
         System.out.println("Top 5 episodios:\n");
-        top_five_episodes.stream()
+        episodes.stream()
                 .sorted(Comparator.comparing(Episode::getRating).reversed())
                 .limit(5)
                 .forEach(System.out::println);
 
+//         Filtrar por ano
+        System.out.println("A partir de qual ano gostaria de ver os episodios");
+        var year = scanner.nextInt();
+        scanner.nextLine();
+        LocalDate searchDate = LocalDate.of(year, 1, 1);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        episodes.stream()
+                .filter(e -> e.getDataReleased() != null && e.getDataReleased().isAfter(searchDate))
+                .forEach(e -> {
+                            System.out.println("Temporada: " + e.getSeasonNumber()
+                                    + "\n Episodio: " + e.getTitle()
+                                    + "\n Data: " + e.getDataReleased().format(dateFormatter));
+                        }
+                );
+
+        DoubleSummaryStatistics est = episodes.stream()
+                .filter(e -> e.getRating() > 0.0)
+                .collect((Collectors.summarizingDouble(Episode::getRating)));
+        System.out.println("Total episodes: " + est.getCount());
+        System.out.println("Average rate: " + est.getAverage());
+        System.out.println("Max Value: " + est.getMax());
+        System.out.println("Minimal value: " + est.getMin());
     }
 
 }
