@@ -1,5 +1,7 @@
 package br.com.alura.screenmatch.model;
 
+import br.com.alura.screenmatch.service.MyMemoryAPI;
+
 import java.util.Optional;
 
 public class Serie {
@@ -19,7 +21,8 @@ public class Serie {
         this.atores = dadosSerie.atores();
         this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
         this.poster = dadosSerie.poster();
-        this.sinopse = dadosSerie.sinopse();
+        this.sinopse = Optional.ofNullable(MyMemoryAPI.obterTraducao(dadosSerie.sinopse()))
+                .orElse(dadosSerie.sinopse());
     }
 
     public Serie(String titulo) {

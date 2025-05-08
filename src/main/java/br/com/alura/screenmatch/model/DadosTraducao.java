@@ -1,0 +1,22 @@
+package br.com.alura.screenmatch.model;
+
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record DadosTraducao(
+        @JsonAlias("responseData") DadosResposta response
+) {
+
+    public String getTranslation() {
+        return response.textoTraduzido;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record DadosResposta(
+            @JsonAlias("translatedText") String textoTraduzido
+    ) {
+    }
+
+}
