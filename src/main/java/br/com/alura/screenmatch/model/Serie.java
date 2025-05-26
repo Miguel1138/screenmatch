@@ -23,7 +23,8 @@ public class Serie {
     private String atores;
     private String poster;
     private String sinopse;
-    @Transient
+
+    @OneToMany(targetEntity = Episodio.class, mappedBy = "serie")
     private List<Episodio> episodios = new ArrayList<>();
 
     public List<Episodio> getEpisodios() {
@@ -35,7 +36,7 @@ public class Serie {
     }
 
     public Serie() {
-        
+
     }
 
     public Serie(DadosSerie dadosSerie) {
