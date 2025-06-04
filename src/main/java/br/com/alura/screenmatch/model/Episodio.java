@@ -19,15 +19,23 @@ public class Episodio {
     @ManyToOne
     private Serie serie;
 
+    public Episodio() {
+    }
+
     public Episodio(Integer numeroTemporada, DadosEpisodio dadosEpisodio) {
         this.temporada = numeroTemporada;
         this.titulo = dadosEpisodio.titulo();
         this.numeroEpisodio = dadosEpisodio.numero();
-        this.avaliacao = Optional.of(Double.valueOf(dadosEpisodio.avaliacao())).orElse(0.0);
+        this.avaliacao = validateRating(dadosEpisodio.avaliacao());
         this.dataLancamento = Optional.of(LocalDate.parse(dadosEpisodio.dataLancamento())).orElse(null);
     }
 
-    public Episodio() {
+    private Double validateRating(String rating) {
+        String regex = "^\\d+(\\.\\d)?$";
+        if (rating.matches(regex))
+            return Optional.of(Double.valueOf(rating)).get();
+
+        return 0.0;
     }
 
     public Serie getSerie() {
