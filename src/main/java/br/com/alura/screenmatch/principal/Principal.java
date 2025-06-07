@@ -34,7 +34,9 @@ public class Principal {
                     1 - Buscar séries
                     2 - Buscar episódios
                     3 - Listar Séries buscadas
-                    
+                    4 - buscar por nome
+                    5 - Buscar por nome do ator
+                    6 - Buscar 5 melhores notas
                     0 - Sair                                 
                     """;
 
@@ -52,6 +54,14 @@ public class Principal {
                 case 3:
                     buscarSeriesListadas();
                     break;
+                case 4:
+                    buscarSeriePorNome();
+                    break;
+                case 5:
+                    buscarPorNomeAtor();
+                    break;
+                case 6:
+                    findTop5Series();
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -59,6 +69,45 @@ public class Principal {
                     System.out.println("Opção inválida");
             }
         }
+    }
+
+    private void findTop5Series() {
+        Optional<List<Serie>> topSeries = repository.findTop5ByOrderByAvaliacaoDesc();
+        topSeries.ifPresent(
+                serieList -> serieList.forEach(
+                        s -> System.out.println("Nome: " + s.getTitulo() + " - Nota: " + s.getAvaliacao())));
+    }
+
+    private void buscarSeriePorNome() {
+        System.out.println("Digite o nome da série para busca");
+        String nomeSerie = leitura.nextLine();
+        Optional<Serie> serie = repository.findByTituloContainingIgnoreCase(nomeSerie);
+        if(serie.isPresent()) {
+            System.out.println(serie.get());
+        } else {
+            System.out.println("Série não encontrada!");
+        }
+    }
+
+    private void buscarPorNomeAtor() {
+        System.out.println("Digite o nome da série para busca");
+        String nomeAtor = leitura.nextLine();
+        System.out.println("QUal a nota mínima para busca?");
+        Double notaMinima = leitura.nextDouble();
+        Optional<List<Serie>> seriesComAtorBuscado
+                = repository.findByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(nomeAtor, notaMinima);
+        if(seriesComAtorBuscado.isPresent()) {
+            System.out.println("Series em que " + nomeAtor + " participou com nota maior ou igual a " + notaMinima);
+            seriesComAtorBuscado.get()
+                    .forEach(s ->  System.out.println("Nome:"+ s.getTitulo() + " - Nota: " + s.getAvaliacao()));
+        } else {
+            System.out.println("Nenhuma série com esses critérios foi encontrado.");
+        }
+    }
+
+    private void showList(List<Serie> series) {
+        series.forEach(s ->
+                System.out.println());
     }
 
     private void buscarSeriesListadas() {
