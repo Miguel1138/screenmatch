@@ -36,6 +36,8 @@ public class Principal {
                     6 - Buscar 5 melhores notas
                     7 - Buscar série por categoria
                     8 - Buscar serie por total de temporadas e avaliação
+                    9 - Buscar episodios pelo nome
+                    10 - Buscar top 5 episodios por érie
                     0 - Sair                                 
                     """;
 
@@ -68,6 +70,12 @@ public class Principal {
                 case 8:
                     buscarSeriesPorTotalTemporadasEAvaliacao();
                     break;
+                case 9:
+                    buscarEpisodioPorTitulo();
+                    break;
+                case 10:
+                    buscarTopEpisodiosPorSerie();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -77,6 +85,32 @@ public class Principal {
         }
     }
 
+    private void buscarTopEpisodiosPorSerie() {
+        System.out.println("Digite o nome da série:");
+        String nomeSerie = leitura.nextLine();
+        Optional<Serie> optionalSerie = repository.findByTituloContainingIgnoreCase(nomeSerie);
+        if (optionalSerie.isPresent()) {
+            Serie serie = optionalSerie.get();
+            Optional<List<Episodio>> topEpisodios = repository.findTop5EpisodiosBySerie(serie);
+            topEpisodios.ifPresent(episodios -> episodios.forEach(e ->
+                    System.out.printf("Série: %s Temporada %s - Episódio %s - %s Avaliacao - %s\n",
+                            e.getSerie().getTitulo(), e.getTemporada(),
+                            e.getNumeroEpisodio(), e.getTitulo(), e.getAvaliacao())));
+
+        } else
+            System.out.println("teste");
+    }
+
+    private void buscarEpisodioPorTitulo() {
+        System.out.println("Qual o nome do episódio para busca?");
+        String trechoEpisodio = leitura.nextLine();
+        Optional<List<Episodio>> episodiosEncontrados = repository.findEpisodesByTitle(trechoEpisodio);
+        episodiosEncontrados.ifPresent(episodios ->
+                episodios.forEach(e -> System.out.printf("Série: %s Temporada %s - Episódio %s - %s\n",
+                        e.getSerie().getTitulo(), e.getTemporada(),
+                        e.getNumeroEpisodio(), e.getTitulo())));
+    }
+
     private void buscarSeriesPorTotalTemporadasEAvaliacao() {
         System.out.println("Informe a quanitdade máxima que a serie deve ter");
         Integer maxTemporadas = leitura.nextInt();
@@ -84,7 +118,7 @@ public class Principal {
         Double avaliacaoMinima = leitura.nextDouble();
 
         Optional<List<Serie>> seriesEncontradas =
-                repository.findByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqualOrderByAvaliacaoDesc(maxTemporadas, avaliacaoMinima);
+                repository.findTotalTemporadasByAvalicao(maxTemporadas, avaliacaoMinima);
 
         seriesEncontradas.ifPresent(serieList -> {
             serieList.forEach(System.out::println);
@@ -160,6 +194,7 @@ public class Principal {
         return dados;
     }
 
+    // TODO este método está colocando o vlaor errado nas temporadas
     private void buscarEpisodioPorSerie() {
         buscarSeriesListadas();
         System.out.println("Informe o nome da série que você busca:");
